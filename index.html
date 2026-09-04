@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Print Service | Bambu Lab P1S</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-hover: #1f6feb10;
+            --border: #30363d;
+            --accent: #238636;
+            --accent-hover: #2ea043;
+            --text: #c9d1d9;
+            --text-bright: #f0f6fc;
+            --muted: #8b949e;
+            --error: #f85149;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.5; }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.2rem 2rem; border-bottom: 1px solid var(--border);
+            background: var(--surface); position: sticky; top: 0; z-index: 10;
+        }
+        .brand { font-weight: 700; font-size: 1.1rem; color: var(--text-bright); }
+        .brand span { color: var(--accent); }
+
+        .container { max-width: 850px; margin: 2.5rem auto; padding: 0 1rem; }
+
+        .header-title { text-align: center; margin-bottom: 2rem; }
+        .header-title h1 { font-size: 2.2rem; font-weight: 700; color: var(--text-bright); margin-bottom: 0.4rem; }
+        .header-title p { color: var(--muted); font-size: 1rem; }
+
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 2rem; margin-bottom: 1.5rem;
+        }
+        .card h2 { font-size: 1.1rem; color: var(--text-bright); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        .card h2 span { background: var(--border); color: var(--text-bright); width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+
+        /* Printer Info Banner */
+        .printer-specs {
+            background: rgba(31, 111, 235, 0.08); border: 1px solid #1f6feb44;
+            border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; display: flex; gap: 15px; align-items: center;
+        }
+        .printer-specs-icon { font-size: 1.8rem; }
+        .printer-specs-text h3 { font-size: 0.95rem; color: var(--text-bright); margin-bottom: 2px; }
+        .printer-specs-text p { font-size: 0.85rem; color: var(--muted); }
+
+        .upload-box {
+            border: 2px dashed var(--border); background: var(--bg);
+            padding: 2rem; text-align: center; border-radius: 8px; cursor: pointer;
+            transition: 0.15s ease;
+        }
+        .upload-box:hover { border-color: var(--accent); background: var(--surface-hover); }
+        .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+        
+        /* File List Container */
+        .file-list { margin-top: 1rem; display: flex; flex-direction: column; gap: 8px; }
+        .file-item {
+            background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+            padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.9rem;
+        }
+        .file-item-info { display: flex; flex-direction: column; gap: 2px; }
+        .file-item-name { font-weight: 600; color: var(--text-bright); }
+        .file-item-meta { font-size: 0.8rem; color: var(--muted); }
+        .file-remove { background: none; border: none; color: var(--error); cursor: pointer; font-size: 1.1rem; padding: 4px; }
+
+        #viewerContainer {
+            width: 100%; height: 280px; background: var(--bg);
+            border-radius: 8px; border: 1px solid var(--border);
+            margin-top: 1rem; display: none; position: relative; overflow: hidden;
+        }
+        #webglCanvas { width: 100%; height: 100%; }
+        .viewer-controls-hint { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 6px; display: none; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .span-2 { grid-column: span 2; }
+
+        @media(max-width: 600px) { .grid { grid-template-columns: 1fr; } .span-2 { grid-column: span 1; } }
+
+        label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select, textarea {
+            width: 100%; background: var(--bg); border: 1px solid var(--border);
+            color: var(--text-bright); padding: 0.75rem; border-radius: 6px; font-size: 0.95rem; outline: none; transition: 0.15s;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(35, 134, 54, 0.2); }
+
+        .color-options { display: flex; gap: 8px; flex-wrap: wrap; }
+        .color-btn {
+            width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+            border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
+        }
+        .color-btn input { display: none; }
+        .color-btn:has(input:checked) { border-color: var(--text-bright); transform: scale(1.08); }
+        .color-btn span { display: none; font-size: 0.75rem; font-weight: bold; }
+        .color-btn input:checked + span { display: block; }
+
+        .price-card {
+            background: rgba(35, 134, 54, 0.08); border: 1px solid var(--accent);
+            border-radius: 8px; padding: 1.2rem; text-align: center; margin-top: 1.2rem;
+        }
+        .price-val { font-size: 2.2rem; font-weight: 700; color: var(--text-bright); margin: 0.2rem 0; }
+
+        .btn {
+            background: var(--accent); color: #fff; font-weight: 600; border: none;
+            padding: 0.85rem; border-radius: 6px; width: 100%; font-size: 1rem; cursor: pointer;
+            transition: 0.15s; margin-top: 1.2rem;
+        }
+        .btn:hover { background: var(--accent-hover); }
+        .btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+        .status-badge { display: none; padding: 0.5rem 0.8rem; border-radius: 6px; font-size: 0.85rem; margin-top: 0.8rem; border: 1px solid var(--border); background: var(--bg); }
+        .status-badge.error { border-color: var(--error); color: var(--error); }
+
+        footer { text-align: center; padding: 1.5rem; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">3D PRINT <span>SERVICE</span></div>
+        <div style="font-size: 0.85rem; color: var(--muted);">Bambu Lab P1S</div>
+    </header>
+
+    <div class="container">
+        <div class="header-title">
+            <h1>Upload & Print</h1>
+            <p>Upload meerdere STL-bestanden tegelijk, bekijk de live analyse en bereken direct je prijs.</p>
+        </div>
+
+        <form id="orderForm">
+            <input type="hidden" name="Bestanden_Lijst" id="hid_files" value="-">
+            <input type="hidden" name="Totale_Prijs" id="hid_price" value="€0,00">
+            <input type="hidden" name="Statistieken_Details" id="hid_stats" value="-">
+
+            <div class="card">
+                <h2><span>1</span> Je 3D Model(len) (.STL)</h2>
+                
+                <!-- Printer Info Banner -->
+                <div class="printer-specs">
+                    <div class="printer-specs-icon">🖨️</div>
+                    <div class="printer-specs-text">
+                        <h3>Printer Specificaties: Bambu Lab P1S</h3>
+                        <p>Maximale bouwruimte: <strong>256 × 256 × 256 mm</strong>. Meerdere bestanden uploaden is mogelijk; de volumes en automatische supports worden per model opgeteld.</p>
+                    </div>
+                </div>
+
+                <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+                    <span class="upload-icon">📦</span>
+                    <div>Sleep je STL-bestanden hier of klik om te bladeren</div>
+                    <div style="font-size: 0.8rem; color: var(--muted); margin-top: 4px;">Je kunt meerdere bestanden tegelijk selecteren</div>
+                    <input type="file" id="fileInput" name="upload_files" accept=".stl" multiple style="display:none;" onchange="handleFiles(this.files)">
+                </div>
+
+                <div id="fileListContainer" class="file-list"></div>
+
+                <div id="viewerContainer">
+                    <canvas id="webglCanvas"></canvas>
+                </div>
+                <div id="viewerHint" class="viewer-controls-hint">💡 Klik en sleep om te roteren • Scroll om te zoomen</div>
+                <div id="dimStatus" class="status-badge"></div>
+            </div>
+
+            <div class="card">
+                <h2><span>2</span> Materiaal & Opties</h2>
+                <div class="grid">
+                    <div>
+                        <label>Materiaal</label>
+                        <select name="Materiaal" id="matType" onchange="calculateTotal()">
+                            <option value="PLA">PLA (Standaard - Eco-vriendelijk)</option>
+                            <option value="PETG">PETG (Sterk & Hittebestendig)</option>
+                            <option value="TPU">TPU (Flexibel & Rubberachtig)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Verzending</label>
+                        <select name="Verzending" id="shipType" onchange="calculateTotal()">
+                            <option value="Ophalen">Ophalen (Gratis)</option>
+                            <option value="Verzenden">Verzenden (+ € 6,00)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Aantal sets</label>
+                        <input type="number" name="Aantal_Sets" id="qtyInput" value="1" min="1" onchange="calculateTotal()">
+                    </div>
+                    <div>
+                        <label>Automatische Analyse</label>
+                        <div id="analysisBadgeInfo" style="padding: 0.75rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; color: var(--muted);">
+                            Wachten op upload...
+                        </div>
+                    </div>
+                    <div class="span-2">
+                        <label>Kleur</label>
+                        <div class="color-options">
+                            <label class="color-btn" style="background: #238636;" title="Groen"><input type="radio" name="Kleur" value="Groen" data-hex="0x238636" checked onchange="updateMeshColor()"><span>✓</span></label>
+                            <label class="color-btn" style="background: #21262d; border-color: #484f58;" title="Zwart"><input type="radio" name="Kleur" value="Zwart" data-hex="0x161b22" onchange="updateMeshColor()"><span>✓</span></label>
+                            <label class="color-btn" style="background: #f0f6fc;" title="Wit"><input type="radio" name="Kleur" value="Wit" data-hex="0xf0f6fc" onchange="updateMeshColor()"><span style="color:#000;">✓</span></label>
+                            <label class="color-btn" style="background: #f85149;" title="Rood"><input type="radio" name="Kleur" value="Rood" data-hex="0xf85149" onchange="updateMeshColor()"><span>✓</span></label>
+                            <label class="color-btn" style="background: #1f6feb;" title="Blauw"><input type="radio" name="Kleur" value="Blauw" data-hex="0x1f6feb" onchange="updateMeshColor()"><span>✓</span></label>
+                            <label class="color-btn" style="background: #d29922;" title="Geel"><input type="radio" name="Kleur" value="Geel" data-hex="0xd29922" onchange="updateMeshColor()"><span>✓</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="price-card">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600; color: var(--muted);">Geschatte totaalprijs</div>
+                    <div class="price-val" id="priceDisplay">€0,00</div>
+                    <div id="statsSummary" style="font-size: 0.85rem; color: var(--muted);">Upload minimaal één STL-model om de prijs te berekenen</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span>3</span> Jouw Gegevens</h2>
+                <div class="grid">
+                    <div class="span-2">
+                        <label>Naam</label>
+                        <input type="text" name="Naam" required placeholder="Voor- en achternaam">
+                    </div>
+                    <div class="span-2">
+                        <label>E-mailadres</label>
+                        <input type="email" name="Email" required placeholder="jouw@email.nl">
+                    </div>
+                    <div class="span-2">
+                        <label>Opmerkingen / Afleveradres</label>
+                        <textarea name="Bericht" rows="2" placeholder="Eventuele opmerkingen of specifieke wensen..."></textarea>
+                    </div>
+                </div>
+                <button type="submit" id="submitBtn" class="btn" disabled>Aanvraag Verzenden</button>
+            </div>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 3D Print Service • Bambu Lab P1S</p>
+    </footer>
+
+    <script>
+        let uploadedFilesData = [];
+        let scene, camera, renderer, controls, groupObj;
+
+        function handleFiles(files) {
+            if(!files.length) return;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const loader = new THREE.STLLoader();
+                    try {
+                        const geometry = loader.parse(e.target.result);
+                        geometry.computeBoundingBox();
+                        const b = geometry.boundingBox;
+                        const sx = Math.round(b.max.x - b.min.x);
+                        const sy = Math.round(b.max.y - b.min.y);
+                        const sz = Math.round(b.max.z - b.min.z);
+
+                        let vol = computeVolume(geometry) / 1000; // cm3
+                        let grams = Math.max(5, Math.ceil(vol * 1.25 * 0.35));
+                        let hours = Math.max(0.3, Math.ceil((grams / 30) * 10) / 10);
+                        let needsSupports = checkOverhangs(geometry);
+
+                        if(needsSupports) {
+                            grams = Math.ceil(grams * 1.15);
+                            hours = Math.ceil(hours * 1.1 * 10) / 10;
+                        }
+
+                        uploadedFilesData.push({
+                            name: file.name,
+                            sx: sx, sy: sy, sz: sz,
+                            grams: grams,
+                            hours: hours,
+                            supports: needsSupports,
+                            geometry: geometry
+                        });
+
+                        renderUIAndScene();
+                    } catch(err) {
+                        alert('Fout bij het inlezen van STL bestand: ' + file.name);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+            // Reset input so selecting the same file again works
+            document.getElementById('fileInput').value = '';
+        }
+
+        function removeFile(index) {
+            uploadedFilesData.splice(index, 1);
+            renderUIAndScene();
+        }
+
+        function renderUIAndScene() {
+            const listContainer = document.getElementById('fileListContainer');
+            listContainer.innerHTML = '';
+
+            if(uploadedFilesData.length === 0) {
+                document.getElementById('viewerContainer').style.display = 'none';
+                document.getElementById('viewerHint').style.display = 'none';
+                document.getElementById('dimStatus').style.display = 'none';
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('analysisBadgeInfo').innerText = 'Wachten op upload...';
+                document.getElementById('priceDisplay').innerText = '€0,00';
+                document.getElementById('statsSummary').innerText = 'Upload minimaal één STL-model om de prijs te berekenen';
+                document.getElementById('hid_files').value = '-';
+                return;
+            }
+
+            let fileNamesStr = [];
+            let totalGrams = 0;
+            let totalHours = 0;
+            let maxDimensionOverall = 0;
+            let hasAnyOversized = false;
+            let anySupports = false;
+
+            uploadedFilesData.forEach((item, idx) => {
+                fileNamesStr.push(`${item.name} (${item.sx}x${item.sy}x${item.sz}mm)`);
+                totalGrams += item.grams;
+                totalHours += item.hours;
+                if(item.supports) anySupports = true;
+
+                let maxDim = Math.max(item.sx, item.sy, item.sz);
+                if(maxDim > maxDimensionOverall) maxDimensionOverall = maxDim;
+                if(item.sx > 256 || item.sy > 256 || item.sz > 256) hasAnyOversized = true;
+
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `
+                    <div class="file-item-info">
+                        <span class="file-item-name">📦 ${item.name}</span>
+                        <span class="file-item-meta">Afmeting: ${item.sx} × ${item.sy} × ${item.sz} mm | ~${item.grams}g | Supports: ${item.supports ? 'Ja' : 'Nee'}</span>
+                    </div>
+                    <button type="button" class="file-remove" onclick="removeFile(${idx})" title="Verwijder bestand">×</button>
+                `;
+                listContainer.appendChild(div);
+            });
+
+            document.getElementById('hid_files').value = fileNamesStr.join(' | ');
+
+            // Status badge check
+            const badge = document.getElementById('dimStatus');
+            badge.style.display = 'block';
+            if(hasAnyOversized) {
+                badge.className = 'status-badge error';
+                badge.innerHTML = `⚠️ Eén of meerdere modellen overschrijden de max bouwruimte van 256mm (P1S).`;
+                document.getElementById('submitBtn').disabled = true;
+            } else {
+                badge.className = 'status-badge';
+                badge.style.borderColor = 'var(--border)';
+                badge.style.color = 'var(--muted)';
+                badge.innerHTML = `✓ Alle ${uploadedFilesData.length} bestanden goedgekeurd binnen P1S bouwvolume (256×256×256 mm).`;
+                document.getElementById('submitBtn').disabled = false;
+            }
+
+            const analysisBox = document.getElementById('analysisBadgeInfo');
+            analysisBox.style.color = 'var(--text-bright)';
+            analysisBox.innerHTML = anySupports ? '⚡ Supports gedetecteerd op model(len)' : '✓ Geen supports vereist';
+
+            updateThreeViewer();
+            calculateTotal();
+        }
+
+        function updateThreeViewer() {
+            const container = document.getElementById('viewerContainer');
+            container.style.display = 'block';
+            document.getElementById('viewerHint').style.display = 'block';
+            const canvas = document.getElementById('webglCanvas');
+
+            if(!scene) {
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x0d1117);
+
+                camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+                renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+
+                scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+                const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+                dir.position.set(10, 20, 15);
+                scene.add(dir);
+
+                animateLoop();
+            }
+
+            if(groupObj) scene.remove(groupObj);
+            groupObj = new THREE.Group();
+
+            const hexColor = parseInt(document.querySelector('input[name="Kleur"]:checked').dataset.hex);
+            const material = new THREE.MeshStandardMaterial({ color: hexColor, roughness: 0.4 });
+
+            let maxDim = 50;
+            uploadedFilesData.forEach((item, idx) => {
+                let geomClone = item.geometry.clone();
+                geomClone.center();
+                const mesh = new THREE.Mesh(geomClone, material);
+                // Offset multiple meshes if more than one
+                if(uploadedFilesData.length > 1) {
+                    mesh.position.x = (idx - (uploadedFilesData.length - 1) / 2) * 60;
+                }
+                groupObj.add(mesh);
+            });
+
+            scene.add(groupObj);
+            camera.position.set(150, 150, 150);
+            camera.lookAt(0,0,0);
+        }
+
+        function animateLoop() {
+            requestAnimationFrame(animateLoop);
+            if(controls) controls.update();
+            if(renderer && scene && camera) renderer.render(scene, camera);
+        }
+
+        function updateMeshColor() {
+            if(groupObj) {
+                const hex = parseInt(document.querySelector('input[name="Kleur"]:checked').dataset.hex);
+                groupObj.traverse((child) => {
+                    if(child.isMesh) child.material.color.setHex(hex);
+                });
+            }
+        }
+
+        function checkOverhangs(geom) {
+            geom.computeVertexNormals();
+            const norm = geom.attributes.normal;
+            if(!norm) return false;
+            let downFaces = 0, total = norm.count / 3;
+            for(let i=0; i<total; i++) {
+                if(norm.getZ(i * 3) < -0.5) downFaces++;
+            }
+            return (downFaces / total) > 0.05;
+        }
+
+        function computeVolume(geom) {
+            let v = 0, pos = geom.attributes.position;
+            for(let i=0; i<pos.count/3; i++) {
+                let p1 = new THREE.Vector3().fromBufferAttribute(pos, i*3);
+                let p2 = new THREE.Vector3().fromBufferAttribute(pos, i*3+1);
+                let p3 = new THREE.Vector3().fromBufferAttribute(pos, i*3+2);
+                v += p1.dot(p2.cross(p3)) / 6.0;
+            }
+            return Math.abs(v);
+        }
+
+        function calculateTotal() {
+            if(uploadedFilesData.length === 0) return;
+
+            let totalGrams = uploadedFilesData.reduce((sum, item) => sum + item.grams, 0);
+            let totalHours = uploadedFilesData.reduce((sum, item) => sum + item.hours, 0);
+
+            const setsQty = parseInt(document.getElementById('qtyInput').value) || 1;
+            const mat = document.getElementById('matType').value;
+            const ship = document.getElementById('shipType').value;
+
+            let rateGram = 0.022, rateHour = 0.50;
+            if(mat === 'PETG' || mat === 'TPU') { rateGram = 0.028; rateHour = 0.60; }
+
+            let subtotal = ((totalGrams * rateGram) + (totalHours * rateHour)) * setsQty;
+            if(ship === 'Verzenden') subtotal += 6.00;
+
+            subtotal = Math.ceil(subtotal * 100) / 100;
+            const formatted = '€' + subtotal.toFixed(2).replace('.', ',');
+
+            document.getElementById('priceDisplay').innerText = formatted;
+            document.getElementById('hid_price').value = formatted;
+            document.getElementById('hid_stats').value = `Totaal ~${totalGrams * setsQty}g filament | ~${Math.round(totalHours * setsQty * 10)/10}u printtijd (${mat}, Aantal sets: ${setsQty})`;
+            document.getElementById('statsSummary').innerText = `Totaal over ${uploadedFilesData.length} bestand(en): ~${totalGrams * setsQty}g filament | ~${Math.round(totalHours * setsQty * 10)/10}u printtijd (${mat})`;
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "Bezig met verzenden...";
+
+            const formData = new FormData(this);
+            formData.append("access_key", "2e2b5c06-d9b7-43f5-b338-a29f3beea52a");
+            formData.append("subject", "Nieuwe Meerdere 3D Prints Aanvraag via Website");
+
+            fetch("https://api.web3forms.com/submit", { method: "POST", body: formData })
+            .then(res => res.json())
+            .then(res => {
+                if(res.success) {
+                    alert('Je aanvraag is succesvol verstuurd! We nemen snel contact met je op.');
+                    location.reload();
+                } else {
+                    alert('Fout bij verzenden: ' + res.message);
+                    btn.disabled = false;
+                    btn.innerText = "Aanvraag Verzenden";
+                }
+            }).catch(() => {
+                alert('Er is iets misgegaan. Controleer je internetverbinding.');
+                btn.disabled = false;
+                btn.innerText = "Aanvraag Verzenden";
+            });
+        });
+    </script>
+</body>
+</html>
