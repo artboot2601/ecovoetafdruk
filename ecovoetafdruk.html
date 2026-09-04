@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klimaat Calculator Pro - Data-Driven</title>
+    <style>
+        :root {
+            --bg-color: #f0f7f4;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --subtext-color: #555555;
+            --cat-bg: #f7faf8;
+            --primary: #1e5631;
+            --border: #cccccc;
+        }
+
+        body.dark-mode {
+            --bg-color: #121814;
+            --card-bg: #1e2620;
+            --text-color: #e0e6e1;
+            --subtext-color: #a0ada2;
+            --cat-bg: #27332a;
+            --primary: #4ca64c;
+            --border: #445246;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 30px 15px;
+            display: flex;
+            justify-content: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            background-color: var(--card-bg);
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            max-width: 720px;
+            width: 100%;
+        }
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .theme-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        h1 { color: var(--primary); margin: 0 0 10px 0; font-size: 1.8em; text-align: center; }
+        p.intro { text-align: center; color: var(--subtext-color); margin-bottom: 30px; line-height: 1.5; }
+        .categorie {
+            background-color: var(--cat-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary);
+        }
+        .categorie h2 { color: var(--primary); margin-top: 0; font-size: 1.25em; margin-bottom: 15px; }
+        .vraag-groep { margin-bottom: 18px; }
+        label { font-weight: 600; display: block; margin-bottom: 6px; font-size: 0.95em; }
+        
+        select, .num-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95em;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            outline: none;
+        }
+        select:focus, .num-input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-group { display: flex; gap: 10px; }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            flex: 2;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-color);
+            padding: 16px;
+            flex: 1;
+            font-size: 1em;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        #resultaat {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 8px;
+            display: none;
+        }
+        .aarde-icoon { font-size: 2.5em; margin: 10px 0; font-weight: bold; text-align: center; }
+        .bron-vermelding { font-size: 0.8em; color: var(--subtext-color); text-align: center; margin-top: 20px; }
+        
+        .breakdown-container { margin-top: 20px; text-align: left; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 0.9em; margin-bottom: 4px; }
+        .bar-outer { background-color: var(--border); height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+        .bar-inner { height: 100%; background-color: var(--primary); width: 0%; transition: width 0.5s ease; }
+        .tip-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 6px;
+            font-size: 0.95em;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-actions">
+        <span>🌱 EcoCalc Pro (Modular Data)</span>
+        <button class="theme-btn" onclick="toggleDarkMode()">🌙 Donkere Modus</button>
+    </div>
+
+    <h1>🌍 Wetenschappelijke Voetafdruk Calculator</h1>
+    <p class="intro">Bereken jouw footprint op basis van gestructureerde dataset-factoren.</p>
+
+    <form id="ecoForm">
+        <!-- Wonen & Energie -->
+        <div class="categorie">
+            <h2>🏠 Wonen & Energie</h2>
+            <div class="vraag-groep">
+                <label for="q-huis">1. Type woning</label>
+                <select id="q-huis" data-cat="wonen">
+                    <option value="0.1">Appartement / flat</option>
+                    <option value="0.2" selected>Rijtjeshuis / twee-onder-een-kap</option>
+                    <option value="0.4">Vrijstaand huis</option>
+                </select>
+            </div>
+            <div class="vraag-groep">
+                <label for="q-isolatie">2. Isolatie & energie-efficiëntie</label>
+                <select id="q-isolatie" data-cat="wonen">
+                    <option value="0.1">Uitstekend (Energielabel A/B, warmtepomp)</option>
+                    <option value="0.3" selected>Gemiddeld (Energielabel C/D, dubbel glas)</option>
+                    <option value="0.5">Slecht (Energielabel E/F/G, enkel glas)</option>
+                </select>
+            </div>
+            <div class="vraag-groep">
+                <label for="q-stroom">3. Stroomvoorziening</label>
+                <select id="q-stroom" data-cat="wonen">
+                    <option value="0.0">100% Groene stroom / eigen zonnepanelen</option>
+                    <option value="0.2" selected>Grijze stroom / reguliere energiemix</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Eten & Drinken -->
+        <div class="categorie">
+            <h2>🍽️ Eten & Drinken</h2>
+            <div class="vraag-groep">
+                <label for="q-dieet">4. Eetpatroon</label>
+                <select id="q-dieet" data-cat="eten">
+                    <option value="0.2">Volledig plantaardig (Veganist)</option>
+                    <option value="0.3">Vegetariër (Wel zuivel/eieren)</option>
+                    <option value="0.5" selected>Flexitariër (1-3x per week vlees)</option>
+                    <option value="0.9">Vleeseter (Vrijwel dagelijks vlees)</option>
+                </select>
+            </div>
+            <div class="vraag-groep">
+                <label for="q-verspilling">5. Voedselverspilling</label>
+                <select id="q-verspilling" data-cat="eten">
+                    <option value="0.0">Zelden (Eten kliekjes altijd op)</option>
+                    <option value="0.2" selected>Gemiddeld (Regelmatig restjes weg)</option>
+                    <option value="0.4">Veel (Gooien wekelijks bedorven eten weg)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Vervoer & Reizen -->
+        <div class="categorie">
+            <h2>🚗 Vervoer & Reizen</h2>
+            <div class="vraag-groep">
+                <label for="q-vervoer">6. Dagelijks vervoer</label>
+                <select id="q-vervoer" data-cat="vervoer">
+                    <option value="0.0">Lopend of voornamelijk fiets</option>
+                    <option value="0.1">Openbaar vervoer (Trein/Bus)</option>
+                    <option value="0.2">Elektrische auto</option>
+                    <option value="0.5" selected>Benzine- of dieselauto</option>
+                </select>
+            </div>
+            <div class="vraag-groep">
+                <label for="q-vliegen-binnen">7a. Aantal retourvluchten BINNEN Europa (per jaar)</label>
+                <input type="number" id="q-vliegen-binnen" class="num-input" min="0" max="50" value="1" step="1">
+            </div>
+            <div class="vraag-groep">
+                <label for="q-vliegen-buiten">7b. Aantal retourvluchten BUITEN Europa (per jaar)</label>
+                <input type="number" id="q-vliegen-buiten" class="num-input" min="0" max="50" value="0" step="1">
+            </div>
+        </div>
+
+        <!-- Spullen & Consumptie -->
+        <div class="categorie">
+            <h2>🛍️ Spullen & Kleding</h2>
+            <div class="vraag-groep">
+                <label for="q-kleding">8. Kleding aankoopgedrag</label>
+                <select id="q-kleding" data-cat="spullen">
+                    <option value="0.1">Voornamelijk tweedehands of kledingruil</option>
+                    <option value="0.3" selected>Koop af en toe nieuw, goede kwaliteit</option>
+                    <option value="0.7">Koop maandelijks nieuwe kleding (Fast fashion)</option>
+                </select>
+            </div>
+            <div class="vraag-groep">
+                <label for="q-spullen">9. Elektronica & apparaten</label>
+                <select id="q-spullen" data-cat="spullen">
+                    <option value="0.1">Doe erg lang met apparaten en repareer ze</option>
+                    <option value="0.3" selected>Vervang spullen als ze echt kapot zijn</option>
+                    <option value="0.6">Koop vaak het nieuwste model telefoon/gadget</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="btn-primary" onclick="berekenVoetafdruk()">Bereken Impact</button>
+            <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
+        </div>
+    </form>
+
+    <div id="resultaat"></div>
+    <div class="bron-vermelding">Dataset-driven model gebaseerd op Milieu Centraal richtlijnen.</div>
+</div>
+
+<script>
+    // CENTRALE DATABASE / CONFIGURATIE OBJECT (Simuleert een externe API-bron)
+    const klimaatsDataset = {
+        meta: {
+            bron: "Milieu Centraal & Global Footprint Network",
+            basisInfrastructuur: 1.0, // Vaste maatschappelijke voetafdruk in NL
+            maxScores: { wonen: 1.1, eten: 1.3, vervoer: 3.5, spullen: 1.3 }
+        },
+        tips: {
+            wonen: "💡 <strong>Tip (Wonen):</strong> Isolatie en een warmtepomp besparen structureel veel energie.",
+            eten: "💡 <strong>Tip (Eten):</strong> Minder vlees en zuivel consumeren heeft direct een enorm effect.",
+            vervoer: "💡 <strong>Tip (Reizen):</strong> Vliegen en auto's zijn de grootste individuele veroorzakers.",
+            spullen: "💡 <strong>Tip (Spullen):</strong> Tweedehands kopen en langer met je apparaten doen spaart grondstoffen."
+        }
+    };
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+    }
+
+    function resetForm() {
+        document.getElementById("ecoForm").reset();
+        document.getElementById("resultaat").style.display = "none";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function berekenVoetafdruk() {
+        const categorieen = { wonen: 0, eten: 0, vervoer: 0, spullen: 0 };
+        const maxScores = klimaatsDataset.meta.maxScores;
+        const basisInfrastructuur = klimaatsDataset.meta.basisInfrastructuur;
+        
+        let persoonlijkeScore = 0;
+        
+        // Verwerk alle select-opties op basis van hun data-cat attribuut
+        const selectElements = document.querySelectorAll("select[data-cat]");
+        selectElements.forEach(select => {
+            const val = parseFloat(select.value);
+            const cat = select.getAttribute("data-cat");
+            categorieen[cat] += val;
+            persoonlijkeScore += val;
+        });
+
+        // Verwerk de handmatige invoer van vluchten
+        const vluchtenBinnen = parseInt(document.getElementById("q-vliegen-binnen").value) || 0;
+        const vluchtenBuiten = parseInt(document.getElementById("q-vliegen-buiten").value) || 0;
+        const impactVliegen = (vluchtenBinnen * 0.3) + (vluchtenBuiten * 0.8);
+        
+        categorieen.vervoer += impactVliegen;
+        persoonlijkeScore += impactVliegen;
+
+        let totaalAardes = (persoonlijkeScore + basisInfrastructuur).toFixed(1);
+        const resultaatDiv = document.getElementById("resultaat");
+
+        let bg = "", color = "", statusTekst = "";
+        if (totaalAardes <= 2.0) {
+            statusTekst = "<strong>Fenomenaal!</strong> Jouw voetafdruk is extreem laag.";
+            bg = "#d4edda"; color = "#155724";
+        } else if (totaalAardes <= 3.8) {
+            statusTekst = "<strong>Rond het gemiddelde.</strong> Je zit in de buurt van de gemiddelde Nederlander.";
+            bg = "#fff3cd"; color = "#856404";
+        } else {
+            statusTekst = "<strong>Boven gemiddeld.</strong> Jouw leefstijl vraagt significant meer grondstoffen.";
+            bg = "#f8d7da"; color = "#721c24";
+        }
+
+        // Bepaal de categorie met de hoogste score voor een gerichte tip
+        let hoogsteCat = "wonen";
+        let hoogsteWaarde = 0;
+        for (let cat in categorieen) {
+            if (categorieen[cat] > hoogsteWaarde) {
+                hoogsteWaarde = categorieen[cat];
+                hoogsteCat = cat;
+            }
+        }
+
+        // Bereken balkpercentages (maximaal 100%)
+        let widthWonen = Math.min(100, (categorieen.wonen / maxScores.wonen) * 100);
+        let widthEten = Math.min(100, (categorieen.eten / maxScores.eten) * 100);
+        let widthVervoer = Math.min(100, (categorieen.vervoer / maxScores.vervoer) * 100);
+        let widthSpullen = Math.min(100, (categorieen.spullen / maxScores.spullen) * 100);
+
+        let html = `
+            <div style="text-align:center;">
+                <h2 style="margin-top:0;">Jouw Berekende Resultaat</h2>
+                <div>Als iedereen leefde zoals jij, hadden we nodig:</div>
+                <div class="aarde-icoon">🌍 ${totaalAardes} Aarde(s)</div>
+                <p>${statusTekst}</p>
+            </div>
+            <hr style="border:0; border-top:1px solid rgba(0,0,0,0.1); margin:20px 0;">
+            <div class="breakdown-container">
+                <strong>Analyse op basis van dataset:</strong><br><br>
+                
+                <div class="bar-label"><span>🏠 Wonen & Energie</span><span>${categorieen.wonen.toFixed(1)} aardes</span></div>
+                <div class="bar-outer"><div class="bar-inner" style="width: ${widthWonen}%"></div></div>
+
+                <div class="bar-label"><span>🍽️ Eten & Drinken</span><span>${categorieen.eten.toFixed(1)} aardes</span></div>
+                <div class="bar-outer"><div class="bar-inner" style="width: ${widthEten}%"></div></div>
+
+                <div class="bar-label"><span>🚗 Vervoer & Reizen</span><span>${categorieen.vervoer.toFixed(1)} aardes</span></div>
+                <div class="bar-outer"><div class="bar-inner" style="width: ${widthVervoer}%"></div></div>
+
+                <div class="bar-label"><span>🛍️ Spullen & Kleding</span><span>${categorieen.spullen.toFixed(1)} aardes</span></div>
+                <div class="bar-outer"><div class="bar-inner" style="width: ${widthSpullen}%"></div></div>
+            </div>
+            <div class="tip-box">${klimaatsDataset.tips[hoogsteCat]}</div>
+        `;
+
+        resultaatDiv.style.backgroundColor = bg;
+        resultaatDiv.style.color = color;
+        resultaatDiv.innerHTML = html;
+        resultaatDiv.style.display = "block";
+        resultaatDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
