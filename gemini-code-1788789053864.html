@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary SEO Meta Tags -->
+    <title>Hoeveel Aardbollen Verbruik Jij? 🌍 Gratis Eco Calculator</title>
+    <meta name="title" content="Hoeveel Aardbollen Verbruik Jij? 🌍 Gratis Eco Calculator">
+    <meta name="description" content="Doe de gratis test in 2 minuten en bereken jouw ecologische voetafdruk. Ontdek je klimaat impact en leer hoe je jouw CO2-uitstoot kunt verlagen.">
+    <meta name="keywords" content="ecologische voetafdruk calculator, hoeveel aardbollen verbruik ik, CO2 uitstoot berekenen, klimaat impact, duurzaamheid test, warmtepomp besparing">
+    <meta name="author" content="EcoCalc Pro">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://jouwdomein.nl/">
+
+    <!-- Open Graph / Facebook / LinkedIn -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://jouwdomein.nl/">
+    <meta property="og:title" content="Hoeveel Aardbollen Verbruik Jij? 🌍 Gratis Eco Calculator">
+    <meta property="og:description" content="Bereken direct je voetafdruk met wetenschappelijke data en daag je vrienden uit.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop">
+
+    <!-- Twitter Card Data -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://jouwdomein.nl/">
+    <meta name="twitter:title" content="Hoeveel Aardbollen Verbruik Jij? 🌍 Gratis Eco Calculator">
+    <meta name="twitter:description" content="Bereken je ecologische voetafdruk binnen 2 minuten.">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop">
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Ecologische Voetafdruk Calculator",
+      "url": "https://jouwdomein.nl/",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "All",
+      "browserRequirements": "Requires JavaScript",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Hoeveel aardbollen verbruikt een gemiddelde Nederlander?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Een gemiddelde Nederlander verbruikt circa 3,6 Aardes per jaar. Als de hele wereldbevolking evenveel zou consumeren als wij in Nederland, zouden we ruim 3,5 Aardbollen nodig hebben om aan de vraag te voldoen."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Hoe wordt mijn ecologische voetafdruk berekend?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Onze calculator telt je persoonlijke consumptie op vier hoofdgebieden op: Wonen, Eten, Vervoer en Spullen. Hierbij opgeteld zit een vaste component van 1,0 Aarde voor openbare infrastructuur."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        :root {
+            --bg-color: #f0f7f4;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --subtext-color: #555555;
+            --cat-bg: #f7faf8;
+            --primary: #1e5631;
+            --primary-hover: #143d22;
+            --border: #cccccc;
+            --accent: #2e7d32;
+        }
+
+        body.dark-mode {
+            --bg-color: #121814;
+            --card-bg: #1e2620;
+            --text-color: #e0e6e1;
+            --subtext-color: #a0ada2;
+            --cat-bg: #27332a;
+            --primary: #4ca64c;
+            --primary-hover: #3b873b;
+            --border: #445246;
+            --accent: #81c784;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 30px 15px;
+            display: flex;
+            justify-content: center;
+            transition: background-color 0.3s, color 0.3s;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: var(--card-bg);
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            max-width: 760px;
+            width: 100%;
+        }
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .theme-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-color);
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        .theme-btn:hover { border-color: var(--primary); }
+        h1 { color: var(--primary); margin: 0 0 10px 0; font-size: 1.9em; text-align: center; }
+        p.intro { text-align: center; color: var(--subtext-color); margin-bottom: 30px; line-height: 1.5; font-size: 1.05em; }
+        
+        .categorie {
+            background-color: var(--cat-bg);
+            padding: 22px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary);
+        }
+        .categorie h2 { color: var(--primary); margin-top: 0; font-size: 1.3em; margin-bottom: 15px; }
+        .vraag-groep { margin-bottom: 18px; }
+        label { font-weight: 600; display: block; margin-bottom: 6px; font-size: 0.95em; }
+        
+        select, .num-input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95em;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        select:focus, .num-input:focus { border-color: var(--primary); }
+
+        .btn-group { display: flex; gap: 12px; margin-top: 10px; }
+        .btn-primary {
+            background-color: var(--primary); color: white; border: none; padding: 16px;
+            flex: 2; font-size: 1.1em; font-weight: bold; border-radius: 6px; cursor: pointer;
+        }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary {
+            background-color: transparent; border: 1px solid var(--border); color: var(--text-color);
+            padding: 16px; flex: 1; font-size: 1em; border-radius: 6px; cursor: pointer;
+        }
+        
+        #resultaat { margin-top: 30px; padding: 25px; border-radius: 8px; display: none; }
+        .aarde-icoon { font-size: 2.8em; margin: 10px 0; font-weight: bold; text-align: center; }
+        
+        .breakdown-container { margin-top: 20px; text-align: left; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 0.9em; margin-bottom: 4px; font-weight: 600; }
+        .bar-outer { background-color: var(--border); height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+        .bar-inner { height: 100%; background-color: var(--primary); width: 0%; transition: width 0.5s ease; }
+        
+        .share-box { margin-top: 25px; text-align: center; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1); }
+        .share-btn { display: inline-block; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; text-decoration: none; border: none; margin: 5px; font-size: 0.9em; }
+        .share-wa { background-color: #25D366; color: white; }
+        .share-copy { background-color: var(--cat-bg); color: var(--text-color); border: 1px solid var(--border); }
+        
+        .seo-section { margin-top: 40px; padding-top: 25px; border-top: 1px solid var(--border); }
+        .seo-section h2 { color: var(--primary); font-size: 1.4em; margin-bottom: 12px; }
+        .seo-section p { font-size: 0.95em; color: var(--subtext-color); margin-bottom: 15px; }
+        .faq-item { margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+        .faq-item h3 { font-size: 1.05em; color: var(--text-color); margin: 0 0 6px 0; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<main class="container">
+    <div class="header-actions">
+        <span>🌱 EcoCalc Pro</span>
+        <button class="theme-btn" onclick="toggleDarkMode()">🌙 Donkere Modus</button>
+    </div>
+
+    <h1>🌍 Ecologische Voetafdruk Calculator</h1>
+    <p class="intro">Bereken binnen 2 minuten jouw ecologische voetafdruk en ontdek hoeveel aardbollen we nodig hebben als iedereen leefde zoals jij.</p>
+
+    <form id="ecoForm">
+        <div class="categorie">
+            <h2>🏠 1. Wonen & Energie</h2>
+            <div class="vraag-groep">
+                <label for="q-wonen">Type woning</label>
+                <select id="q-wonen" data-cat="wonen">
+                    <option value="0.1">Appartement / flat</option>
+                    <option value="0.2" selected>Rijtjeshuis / twee-onder-een-kap</option>
+                    <option value="0.4">Vrijstaand huis</option>
+                </select>
+            </div>
+            <div class="vraag-groep">
+                <label for="q-isolatie">Isolatie & energie-efficiëntie</label>
+                <select id="q-isolatie" data-cat="wonen">
+                    <option value="0.1">Uitstekend (Energielabel A/B, warmtepomp)</option>
+                    <option value="0.3" selected>Gemiddeld (Energielabel C/D, dubbel glas)</option>
+                    <option value="0.5">Slecht (Energielabel E/F/G, enkel glas)</option>
+                </select>
+            </div>
+            <div class="vraag-groep">
+                <label for="q-stroom">Stroomvoorziening</label>
+                <select id="q-stroom" data-cat="wonen">
+                    <option value="0.0">100% Groene stroom / eigen zonnepanelen</option>
+                    <option value="0.2" selected>Grijze stroom / reguliere energiemix</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="categorie">
+            <h2>🍽️ 2. Eten & Drinken</h2>
+            <div class="vraag-groep">
+                <label for="q-eten">Eetpatroon</label>
+                <select id="q-eten" data-cat="eten">
+                    <option value="0.2">Volledig plantaardig (Veganist)</option>
+                    <option value="0.3">Vegetariër (Wel zuivel/eieren)</option>
+                    <option value="0.5" selected>Flexitariër (1-3x per week vlees)</option>
+                    <option value="0.9">Vleeseter (Vrijwel dagelijks vlees)</option>
+                </select>
+            </div>
+            <div class="vraag-groep">
+                <label for="q-verspilling">Voedselverspilling</label>
+                <select id="q-verspilling" data-cat="eten">
+                    <option value="0.0">Zelden (Eten kliekjes altijd op)</option>
+                    <option value="0.2" selected>Gemiddeld (Regelmatig restjes weg)</option>
+                    <option value="0.4">Veel (Gooien wekelijks bedorven eten weg)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="categorie">
+            <h2>🚗 3. Vervoer & Reizen</h2>
+            <div class="vraag-groep">
+                <label for="q-vervoer">Dagelijks vervoer</label>
+                <select id="q-vervoer" data-cat="vervoer">
+                    <option value="0.0">Lopend of voornamelijk fiets</option>
+                    <option value="0.1">Openbaar vervoer (Trein/Bus)</option>
+                    <option value="0.2">Elektrische auto</option>
+                    <option value="0.5" selected>Benzine- of dieselauto</option>
+                </select>
+            </div>
+            <div class="vraag-groep">
+                <label for="q-vliegen-binnen">Retourvluchten BINNEN Europa (per jaar)</label>
+                <input type="number" id="q-vliegen-binnen" class="num-input" min="0" value="1">
+            </div>
+            <div class="vraag-groep">
+                <label for="q-vliegen-buiten">Retourvluchten BUITEN Europa (per jaar)</label>
+                <input type="number" id="q-vliegen-buiten" class="num-input" min="0" value="0">
+            </div>
+        </div>
+
+        <div class="categorie">
+            <h2>🛍️ 4. Spullen & Kleding</h2>
+            <div class="vraag-groep">
+                <label for="q-kleding">Kleding aankoopgedrag</label>
+                <select id="q-kleding" data-cat="spullen">
+                    <option value="0.1">Voornamelijk tweedehands of kledingruil</option>
+                    <option value="0.3" selected>Koop af en toe nieuw, goede kwaliteit</option>
+                    <option value="0.7">Koop maandelijks nieuwe kleding (Fast fashion)</option>
+                </select>
+            </div>
+            <div class="vraag-groep">
+                <label for="q-elektronica">Elektronica & apparaten</label>
+                <select id="q-elektronica" data-cat="spullen">
+                    <option value="0.1">Doe erg lang met apparaten en repareer ze</option>
+                    <option value="0.3" selected>Vervang spullen als ze echt kapot zijn</option>
+                    <option value="0.6">Koop vaak het nieuwste model telefoon/gadget</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="btn-primary" onclick="berekenVoetafdruk()">Bereken Impact</button>
+            <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
+        </div>
+    </form>
+
+    <div id="resultaat" aria-live="polite"></div>
+
+    <section class="seo-section">
+        <h2>❓ Veelgestelde Vragen (FAQ)</h2>
+        <div class="faq-item">
+            <h3>Hoeveel aardbollen verbruikt een gemiddelde Nederlander?</h3>
+            <p>Een gemiddelde Nederlander verbruikt circa 3,6 Aardes per jaar. Als de hele wereldbevolking evenveel zou consumeren als wij in Nederland, zouden we ruim 3,5 Aardbollen nodig hebben om aan de vraag te voldoen.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Hoe wordt mijn ecologische voetafdruk berekend?</h3>
+            <p>Onze calculator telt je persoonlijke consumptie op vier hoofdgebieden op: Wonen, Eten, Vervoer en Spullen. Hierbij opgeteld zit een vaste component van 1,0 Aarde voor openbare infrastructuur (zoals straten en ziekenhuizen).</p>
+        </div>
+    </section>
+
+    <section class="seo-section">
+        <h2>📖 Tips om je voetafdruk te verkleinen</h2>
+        <div class="faq-item">
+            <h3>10 Makkelijke manieren om je CO2-uitstoot te verlagen</h3>
+            <p>De grootste winst zit vaak in kleine aanpassingen. Eet één dag per week extra vegetarisch, zet je thermostaat een graadje lager en was je kleding op 30 graden. Koop vaker tweedehands en repareer elektronica in plaats van het nieuw te kopen.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Wat levert een warmtepomp op voor het milieu?</h3>
+            <p>Een hybride of volledig elektrische warmtepomp is een van de effectiefste manieren om je persoonlijke ecologische voetafdruk direct te verlagen. Omdat je geen of veel minder aardgas verbrandt, daalt je CO2-uitstoot voor verwarming aanzienlijk.</p>
+        </div>
+    </section>
+</main>
+
+<script>
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+    }
+
+    function resetForm() {
+        document.getElementById("ecoForm").reset();
+        document.getElementById("resultaat").style.display = "none";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert("✅ Link gekopieerd! Deel hem op social media of stuur hem door.");
+        });
+    }
+
+    function berekenVoetafdruk() {
+        const categorieen = { wonen: 0, eten: 0, vervoer: 0, spullen: 0 };
+        const maxScores = { wonen: 1.1, eten: 1.3, vervoer: 3.5, spullen: 1.3 };
+        const basisInfrastructuur = 1.0;
+        
+        let persoonlijkeScore = 0;
+        
+        const selectElements = document.querySelectorAll("select[data-cat]");
+        selectElements.forEach(select => {
+            const val = parseFloat(select.value);
+            const cat = select.getAttribute("data-cat");
+            categorieen[cat] += val;
+            persoonlijkeScore += val;
+        });
+
+        const vluchtenBinnen = parseInt(document.getElementById("q-vliegen-binnen").value) || 0;
+        const vluchtenBuiten = parseInt(document.getElementById("q-vliegen-buiten").value) || 0;
+        const impactVliegen = (vluchtenBinnen * 0.3) + (vluchtenBuiten * 0.8);
+        
+        categorieen.vervoer += impactVliegen;
+        persoonlijkeScore += impactVliegen;
+
+        let totaalAardes = (persoonlijkeScore + basisInfrastructuur).toFixed(1);
+        const resultaatDiv = document.getElementById("resultaat");
+
+        let bg = "", color = "", statusTekst = "";
+        if (totaalAardes <= 2.0) {
+            statusTekst = "<strong>Fenomenaal!</strong> Jouw voetafdruk is extreem laag.";
+            bg = "#d4edda"; color = "#155724";
+        } else if (totaalAardes <= 3.8) {
+            statusTekst = "<strong>Rond het gemiddelde.</strong> Je zit in de buurt van de gemiddelde Nederlander (3.6 aardes).";
+            bg = "#fff3cd"; color = "#856404";
+        } else {
+            statusTekst = "<strong>Boven gemiddeld.</strong> Jouw leefstijl vraagt meer grondstoffen dan de aarde kan bieden.";
+            bg = "#f8d7da"; color = "#721c24";
+        }
+
+        let widthWonen = Math.min(100, (categorieen.wonen / maxScores.wonen) * 100);
+        let widthEten = Math.min(100, (categorieen.eten / maxScores.eten) * 100);
+        let widthVervoer = Math.min(100, (categorieen.vervoer / maxScores.vervoer) * 100);
+        let widthSpullen = Math.min(100, (categorieen.spullen / maxScores.spullen) * 100);
+
+        const currentUrl = encodeURIComponent(window.location.href);
+        const shareText = encodeURIComponent(`Ik verbruik ${totaalAardes} aardbollen! 🌍 Bereken jouw ecologische voetafdruk ook gratis via: `);
+        const waLink = `https://wa.me/?text=${shareText}${currentUrl}`;
+
+        let html = `
+            <div style="text-align:center;">
+                <h2 style="margin-top:0;">Jouw Berekende Resultaat</h2>
+                <div>Als iedereen leefde zoals jij, hadden we nodig:</div>
+                <div class="aarde-icoon">🌍 ${totaalAardes} Aarde(s)</div>
+                <p>${statusTekst}</p>
+            </div>
+            <hr style="border:0; border-top:1px solid rgba(0,0,0,0.1); margin:20px 0;">
+            <div class="breakdown-container">
+                <strong>Analyse van jouw persoonlijke keuzes:</strong><br><br>
+                
+                <div class="bar-label"><span>🏠 Wonen & Energie</span><span>${categorieen.wonen.toFixed(1)} aardes</span></div>
+                <div class="bar-outer"><div class="bar-inner" style="width: ${widthWonen}%"></div></div>
+
+                <div class="bar-label"><span>🍽️ Eten & Drinken</span><span>${categorieen.eten.toFixed(1)} aardes</span></div>
+                <div class="bar-outer"><div class="bar-inner" style="width: ${widthEten}%"></div></div>
+
+                <div class="bar-label"><span>🚗 Vervoer & Reizen</span><span>${categorieen.vervoer.toFixed(1)} aardes</span></div>
+                <div class="bar-outer"><div class="bar-inner" style="width: ${widthVervoer}%"></div></div>
+
+                <div class="bar-label"><span>🛍️ Spullen & Kleding</span><span>${categorieen.spullen.toFixed(1)} aardes</span></div>
+                <div class="bar-outer"><div class="bar-inner" style="width: ${widthSpullen}%"></div></div>
+            </div>
+            
+            <div class="share-box">
+                <strong>Deel je resultaat en daag vrienden uit! 🎯</strong><br>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
+                    <a href="${waLink}" target="_blank" class="share-btn share-wa">📲 Deel via WhatsApp</a>
+                    <button onclick="copyLink()" class="share-btn share-copy">🔗 Kopieer Link</button>
+                </div>
+            </div>
+        `;
+
+        resultaatDiv.style.backgroundColor = bg;
+        resultaatDiv.style.color = color;
+        resultaatDiv.innerHTML = html;
+        resultaatDiv.style.display = "block";
+        resultaatDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
